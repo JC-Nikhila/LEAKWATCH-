@@ -8,7 +8,7 @@ Developers accidentally commit API keys and passwords, and employees paste custo
 ## What LeakWatch does
 1. **Ingests** a repository history, a chat-channel export (JSON), or plain text files.
 2. **Scans** with secret-detection patterns (AWS, GitHub, Slack, Stripe, Google keys, private keys, database URLs, JWTs, hardcoded passwords) and personal-data rules (credit cards with Luhn check, Aadhaar, PAN, SSN, phone numbers, emails).
-3. **Judges** every hit with an LLM (Claude) to decide whether it is a real secret or a test placeholder. A built-in heuristic is used if no API key is set.
+3. **Judges** every hit with an LLM to decide whether it is a real secret or a test placeholder. A built-in heuristic is used if no API key is set.
 4. **Assigns severity** from the secret type and how widely it was exposed (for example, posted in #general or committed to git history ranks higher).
 5. **Alerts the owner** for high and critical leaks.
 6. **Generates a remediation checklist** (rotate, purge, notify) for each leak.
@@ -18,7 +18,7 @@ Developers accidentally commit API keys and passwords, and employees paste custo
 Optional extension: a **pre-commit hook** that blocks commits containing real secrets.
 
 ## Tech stack
-Python, Flask, Anthropic Claude API (optional), HTML/CSS/JavaScript dashboard.
+Python, Flask, Anthropic Claude API , HTML/CSS/JavaScript dashboard.
 
 ## Quick start
 ```bash
@@ -26,8 +26,7 @@ git clone https://github.com/<your-username>/leakwatch.git
 cd leakwatch
 pip install -r requirements.txt
 
-# Optional: enable the Claude LLM judge
-export ANTHROPIC_API_KEY=sk-ant-...        # PowerShell: $env:ANTHROPIC_API_KEY="sk-ant-..."
+export ANTHROPIC_API_KEY=sk-ant-...        
 
 python app.py
 ```
