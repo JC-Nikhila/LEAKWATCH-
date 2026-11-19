@@ -45,11 +45,7 @@ On Windows you can also double-click `run.bat`.
 | `templates/index.html` | Dashboard |
 | `samples.py` | Builds fake demo data at runtime (`python samples.py` writes it to `sample_data/`) |
 
-## Pre-commit hook (optional)
-```bash
-cp precommit_hook.py .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
-```
+
 
 ## Safety by design
 - Raw secrets are never sent to the browser. Only masked values are displayed.
