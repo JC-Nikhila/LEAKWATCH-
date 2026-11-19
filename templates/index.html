@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LeakWatch</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f4ef;--panel:#fffdf9;--ink:#17201c;--mute:#6a756f;--line:#e3dfd5;--brand:#14513f;--brand2:#e9f2ee;
+--critical:#b3261e;--high:#d4691f;--medium:#c49a12;--low:#5b82a6;--ok:#2f7d4f;--shadow:0 1px 2px rgba(20,40,30,.06),0 8px 24px rgba(20,40,30,.05)}
+@media(prefers-color-scheme:dark){:root{--bg:#0e1411;--panel:#151d19;--ink:#e8f0eb;--mute:#8d9d94;--line:#26332d;--brand:#5fd1ae;--brand2:#18271f;--shadow:none}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+header{display:flex;align-items:center;gap:12px;padding:22px 0}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--brand);display:grid;place-items:center}
+header b{font:600 22px Fraunces,Georgia,serif;letter-spacing:-.01em}
+header span.t{color:var(--mute);margin-left:auto;font-size:13px}
+.hero{padding:30px 0 10px}
+h1{font:600 clamp(30px,5vw,46px)/1.1 Fraunces,Georgia,serif;margin:0 0 12px;letter-spacing:-.02em;max-width:18ch}
+.lead{color:var(--mute);max-width:56ch;margin:0 0 26px;font-size:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.drop{padding:34px 22px;text-align:center;border:2px dashed var(--line);border-radius:14px;background:var(--panel);transition:.15s;cursor:pointer}
+.drop.over{border-color:var(--brand);background:var(--brand2)}
+.drop h3{margin:8px 0 2px;font-size:17px}.drop p{margin:0;color:var(--mute);font-size:14px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.chip{background:var(--brand2);color:var(--brand);border-radius:999px;padding:3px 12px;font-size:13px}
+.actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+button{font:500 15px Inter,sans-serif;cursor:pointer;border-radius:10px;border:1px solid var(--brand);background:var(--brand);color:#fff;padding:10px 20px;transition:.15s}
+@media(prefers-color-scheme:dark){button{color:#06251b}}
+button:hover{filter:brightness(1.08)}button.ghost{background:transparent;color:var(--brand)}button:disabled{opacity:.5;cursor:default}
+button:focus-visible,.drop:focus-visible,summary:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.steps{display:flex;gap:6px;margin:22px 0 8px;flex-wrap:wrap;color:var(--mute);font-size:13px}
+.steps div{display:flex;align-items:center;gap:6px}.steps i{width:8px;height:8px;border-radius:50%;background:var(--line)}
+.steps .on{color:var(--ink)}.steps .on i{background:var(--brand)}.steps div+div::before{content:"";width:22px;height:1px;background:var(--line);margin-right:4px}
+#result{margin-top:34px}.hidden{display:none}
+.top{display:grid;grid-template-columns:1.2fr 2fr;gap:16px}@media(max-width:760px){.top{grid-template-columns:1fr}}
+.big{padding:24px}.big .n{font:600 64px/1 Fraunces,Georgia,serif;letter-spacing:-.03em}
+.big .l{color:var(--mute);margin-top:6px}.big .m{margin-top:14px;font-size:13px;color:var(--mute)}
+.dist{padding:24px}.bar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--line);margin:10px 0 18px}
+.bar div{transition:width .6s}.legend{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}@media(max-width:520px){.legend{grid-template-columns:repeat(2,1fr)}}
+.legend div{border-left:4px solid;padding-left:10px}.legend b{font-size:22px;display:block;line-height:1.1}.legend span{font-size:13px;color:var(--mute)}
+.alerts{margin-top:16px;padding:18px 22px}.alerts h4{margin:0 0 8px;font-size:14px}
+.alerts pre{margin:0;font:12.5px/1.7 "JetBrains Mono",monospace;color:var(--mute);white-space:pre-wrap;max-height:130px;overflow:auto}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:28px 0 12px}
+.toolbar h2{font:600 24px Fraunces,Georgia,serif;margin:0;margin-right:auto}
+.filter{background:transparent;color:var(--mute);border:1px solid var(--line);padding:5px 14px;font-size:13px;border-radius:999px}
+.filter.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.f{padding:16px 18px;margin-bottom:10px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:start;border-left:5px solid var(--line)}
+.f.critical{border-left-color:var(--critical)}.f.high{border-left-color:var(--high)}.f.medium{border-left-color:var(--medium)}.f.low{border-left-color:var(--low)}.f.dim{opacity:.6}
+.f h4{margin:0;font-size:16px}.f .meta{color:var(--mute);font-size:13px;margin-top:2px}
+code{font:13px "JetBrains Mono",monospace;background:var(--brand2);padding:2px 7px;border-radius:6px}
+.badge{font-size:12px;font-weight:600;padding:2px 10px;border-radius:999px;color:#fff;margin-right:8px;text-transform:capitalize}
+.badge.critical{background:var(--critical)}.badge.high{background:var(--high)}.badge.medium{background:var(--medium)}.badge.low{background:var(--low)}
+.verdict{font-size:13px;color:var(--mute);margin-top:8px}.verdict b{color:var(--ink)}
+.status{font-size:13px;text-align:right;white-space:nowrap}.status.done{color:var(--ok);font-weight:600}
+details{margin-top:8px}summary{cursor:pointer;color:var(--brand);font-size:13px;font-weight:500}
+ul.cl{margin:8px 0 0;padding-left:20px;font-size:14px}ul.cl li{margin:2px 0}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--brand);margin-top:3px}
+.empty{padding:40px;text-align:center;color:var(--mute)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,80px);background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:10px;font-size:14px;transition:.3s;opacity:0;z-index:9;max-width:90vw}
+.toast.show{transform:translate(-50%,0);opacity:1}.toast.err{background:var(--critical);color:#fff}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:s .7s linear infinite;vertical-align:-2px;margin-right:8px}
+@keyframes s{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+footer{padding:40px 0;color:var(--mute);font-size:13px;text-align:center}
+</style></head><body>
+<div class="wrap">
+<header><div class="logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div><b>LeakWatch</b><span class="t" id="judgeLbl"></span></header>
+
+<section class="hero">
+  <h1>Find leaked secrets before attackers do.</h1>
+  <p class="lead">Upload repository history, a chat export or text files. LeakWatch finds keys, passwords and personal data, then separates real leaks from test placeholders.</p>
+  <div class="drop" id="drop" tabindex="0" role="button" aria-label="Choose files to scan">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>
+    <h3>Drop files here or click to browse</h3>
+    <p>Git history (.txt), chat export (.json), or any text file</p>
+    <div class="chips" id="chips"></div>
+    <input type="file" id="files" multiple hidden>
+  </div>
+  <div class="actions"><button id="scan">Scan my files</button><button class="ghost" id="sample">Try with sample data</button></div>
+  <div class="steps" id="steps"><div class="on"><i></i>Scan</div><div><i></i>Judge</div><div><i></i>Alert</div><div><i></i>Approve fix</div></div>
+</section>
+
+<section id="result" class="hidden">
+  <div class="top">
+    <div class="card big"><div class="n" id="nReal">0</div><div class="l">real leaks found</div><div class="m" id="nMeta"></div></div>
+    <div class="card dist"><b>By severity</b><div class="bar" id="bar"></div><div class="legend" id="legend"></div></div>
+  </div>
+  <div class="card alerts" id="alertbox"><h4>Owner alerts sent</h4><pre id="alerts"></pre></div>
+
+  <div class="toolbar"><h2>Findings</h2>
+    <button class="filter on" data-f="real">Real</button><button class="filter" data-f="critical">Critical</button><button class="filter" data-f="high">High</button><button class="filter" data-f="ph">Placeholders</button>
+    <button class="ghost" id="selAll">Select all open</button>
+    <button id="approve">Approve fix</button><button class="ghost" id="dl">Download report</button></div>
+  <div id="list"></div>
+</section>
+<footer>Fixes are simulated and only run after you approve. Raw secrets are never shown, only masked values.</footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let R=null,FILTER="real";const $=id=>document.getElementById(id);let picked=[];
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const COL={critical:"var(--critical)",high:"var(--high)",medium:"var(--medium)",low:"var(--low)"};
+function toast(m,err){const t=$("toast");t.textContent=m;t.className="toast show"+(err?" err":"");clearTimeout(t._h);t._h=setTimeout(()=>t.className="toast",3800)}
+function step(n){[...$("steps").children].forEach((d,i)=>d.classList.toggle("on",i<=n))}
+if(location.protocol==="file:")toast("Open http://localhost:5000 from the running server, not this file directly.",true);
+$("drop").onclick=()=>$("files").click();
+$("drop").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("files").click()}};
+$("files").onchange=()=>setFiles([...$("files").files]);
+["dragover","dragenter"].forEach(ev=>$("drop").addEventListener(ev,e=>{e.preventDefault();$("drop").classList.add("over")}));
+["dragleave","drop"].forEach(ev=>$("drop").addEventListener(ev,e=>{e.preventDefault();$("drop").classList.remove("over")}));
+$("drop").addEventListener("drop",e=>setFiles([...e.dataTransfer.files]));
+function setFiles(fs){picked=fs;$("chips").innerHTML=fs.map(f=>`<span class="chip">${esc(f.name)}</span>`).join("")}
+async function call(url,opts,btn,label){
+  const old=btn.innerHTML;btn.disabled=true;btn.innerHTML='<span class="spin"></span>'+label;
+  try{const r=await fetch(url,opts);const d=await r.json();if(d.error){toast(d.error,true);return null}return d}
+  catch(e){toast("Cannot reach the server. Make sure python app.py is still running.",true);return null}
+  finally{btn.disabled=false;btn.innerHTML=old}}
+async function done(d){if(!d)return;R=d;step(1);await new Promise(r=>setTimeout(r,350));step(R.alerts.length?2:1);render();
+  $("result").classList.remove("hidden");$("result").scrollIntoView({behavior:"smooth"})}
+$("scan").onclick=async()=>{if(!picked.length){toast("Choose at least one file, or try the sample data.",true);return}
+  const fd=new FormData();picked.forEach(f=>fd.append("files",f));done(await call("/api/scan",{method:"POST",body:fd},$("scan"),"Scanning"))};
+$("sample").onclick=async()=>{setFiles([{name:"repo_history.txt"},{name:"chat_export.json"},{name:"notes.txt"}]);
+  done(await call("/api/sample",{method:"POST"},$("sample"),"Scanning")) };
+document.querySelectorAll(".filter").forEach(b=>b.onclick=()=>{FILTER=b.dataset.f;document.querySelectorAll(".filter").forEach(x=>x.classList.toggle("on",x===b));renderList()});
+$("selAll").onclick=()=>document.querySelectorAll(".sel").forEach(c=>c.checked=true);
+$("approve").onclick=async()=>{const ids=[...document.querySelectorAll(".sel:checked")].map(c=>+c.value);
+  if(!ids.length){toast("Tick the findings you want to fix first.",true);return}
+  const d=await call("/api/approve/"+R.id,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ids})},$("approve"),"Fixing");
+  if(d){R=d;step(3);render();toast("Simulated fix applied to "+ids.length+" finding(s). Nothing real was changed.")}};
+$("dl").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(R,null,2)],{type:"application/json"}));a.download="leak_report_"+R.id+".json";a.click()};
+function render(){const s=R.summary;$("judgeLbl").textContent="Judge: "+R.judge;
+  $("nReal").textContent=s.real;$("nMeta").textContent=s.total_hits+" total hits · "+s.placeholders+" placeholders dismissed · "+s.remediated+" fixed";
+  const tot=Math.max(s.real,1);$("bar").innerHTML=["critical","high","medium","low"].map(k=>`<div style="width:${s[k]/tot*100}%;background:${COL[k]}"></div>`).join("");
+  $("legend").innerHTML=["critical","high","medium","low"].map(k=>`<div style="border-color:${COL[k]}"><b>${s[k]}</b><span>${k}</span></div>`).join("");
+  $("alertbox").classList.toggle("hidden",!R.alerts.length);$("alerts").textContent=R.alerts.join("\n");renderList()}
+function renderList(){const order={critical:0,high:1,medium:2,low:3};
+  let l=R.findings.filter(f=>FILTER==="ph"?f.verdict!=="real":f.verdict==="real"&&(FILTER==="real"||f.severity===FILTER));
+  l.sort((a,b)=>order[a.severity]-order[b.severity]);
+  $("list").innerHTML=l.length?l.map(f=>`<div class="card f ${f.severity} ${f.verdict!=="real"?"dim":""}">
+   <div>${f.status==="open"?`<input class="sel" type="checkbox" value="${f.id}" aria-label="Select finding">`:""}</div>
+   <div><h4><span class="badge ${f.severity}">${f.severity}</span>${esc(f.type)} <code>${esc(f.masked)}</code></h4>
+    <div class="meta">${esc(f.file)} · ${esc(f.location)}${f.author?" · "+esc(f.author):""}</div>
+    <div class="meta">Why this severity: ${esc(f.exposure)}</div>
+    <div class="verdict"><b>${f.verdict==="real"?"Real leak":"Placeholder"}</b> (${Math.round(f.confidence*100)}% sure, ${f.judged_by}): ${esc(f.reason)}</div>
+    ${f.verdict==="real"?`<details><summary>Remediation checklist</summary><ul class="cl">${f.checklist.map(c=>"<li>"+esc(c)+"</li>").join("")}</ul></details>`:""}
+    ${f.remediation.length?`<ul class="cl">${f.remediation.map(r=>"<li>✓ "+esc(r.step)+" <span class='meta'>(simulated)</span></li>").join("")}</ul>`:""}</div>
+   <div class="status ${f.status.startsWith("remediated")?"done":""}">${f.status.startsWith("remediated")?"Fixed (simulated)":f.status==="open"?"Open":"Dismissed"}</div></div>`).join("")
+   :'<div class="card empty">Nothing here.</div>'}
+</script></body></html>
